@@ -2,56 +2,66 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Carte de Danger - Dakar</title>
+  <title>Carte Alerte Dakar</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Feuilles de style Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link 
+    rel="stylesheet" 
+    href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <style>
     html, body, #map {
       height: 100%;
       margin: 0;
+      font-family: Poppins, sans-serif;
     }
   </style>
 </head>
 <body>
   <div id="map"></div>
 
-  <!-- Leaflet.js -->
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script 
+    src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js">
+  </script>
   <script>
-    // Initialisation de la carte centrée sur Dakar
-    const map = L.map('map').setView([14.7167, -17.4677], 13);
+    // Exemple de signalements (à remplacer par des données Firebase plus tard)
+    const signalements = [
+      { lat: 14.705, lng: -17.455, type: 'Grave' },
+      { lat: 14.710, lng: -17.470, type: 'Moyen' },
+      { lat: 14.708, lng: -17.468, type: 'Mineur' },
+      { lat: 14.715, lng: -17.460, type: 'Grave' }
+    ];
 
-    // Tuile de fond (OpenStreetMap)
+    const map = L.map('map');
+
+    // Créer un groupe pour gérer les bounds automatiquement
+    const group = L.featureGroup();
+
+    // Style des zones
+    const getColor = (type) => {
+      if (type === 'Grave') return 'red';
+      if (type === 'Moyen') return 'yellow';
+      return 'green';
+    };
+
+    signalements.forEach(sig => {
+      const circle = L.circle([sig.lat, sig.lng], {
+        radius: 200,
+        color: getColor(sig.type),
+        fillColor: getColor(sig.type),
+        fillOpacity: 0.4
+      }).addTo(map);
+
+      circle.bindTooltip(sig.type);
+      group.addLayer(circle);
+    });
+
+    // Adapter la vue à l'ensemble des signalements
+    map.fitBounds(group.getBounds(), { padding: [20, 20] });
+
+    // Fond de carte OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap',
-      maxZoom: 19
+      maxZoom: 18,
+      attribution: '© OpenStreetMap'
     }).addTo(map);
-
-    // 🔴 Zone dangereuse (ex : Medina)
-    L.circle([14.6920, -17.4467], {
-      color: 'red',
-      fillColor: 'rgba(255, 0, 0, 0.4)',
-      fillOpacity: 0.5,
-      radius: 500
-    }).addTo(map).bindPopup("Zone Dangereuse");
-
-    // 🟡 Zone à risque (ex : Gueule Tapée)
-    L.circle([14.7086, -17.4547], {
-      color: 'orange',
-      fillColor: 'rgba(255, 165, 0, 0.3)',
-      fillOpacity: 0.4,
-      radius: 900
-    }).addTo(map).bindPopup("Zone à Risque");
-
-    // 🟢 Zone sûre (ex : Plateau)
-    L.circle([14.6690, -17.4370], {
-      color: 'green',
-      fillColor: 'rgba(0, 255, 0, 0.2)',
-      fillOpacity: 0.3,
-      radius: 1500
-    }).addTo(map).bindPopup("Zone Sûre");
-
   </script>
 </body>
 </html>
